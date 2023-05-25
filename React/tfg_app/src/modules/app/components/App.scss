@@ -1,4 +1,4 @@
-.footer{
+.footer {
     height: 4em;
     margin: 0em;
     position: fixed;
@@ -6,16 +6,40 @@
     left: 0%;
     right: 0%;
 
-    hr{
+    hr {
         margin-top: 0pt;
     }
 
-    p{
+    p {
         text-align: center;
     }
 }
 
-.body{
+.flex{
+    display: flex;
+    margin-bottom: 0em;
+    position: absolute;
+    top: 4em;
+    bottom: 0em;
+    left: 0em;
+    right: 0em;
 
     
+}
+
+.body {}
+
+.FaBeer {
+    color: #ffffff;
+}
+
+.user_icon {
+
+  color: #ffffff;
+  size: 100px;
+
+}
+
+.navbar-brand {
+    color: #ffffff;
 }
