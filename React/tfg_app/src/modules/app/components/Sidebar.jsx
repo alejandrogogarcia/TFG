@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 import React from 'react';
 import { Navbar, Nav, Container } from 'react-bootstrap';
 
@@ -17,6 +18,16 @@ const Sidebar = () => {
       </Container>
     </Navbar>
   );
+=======
+const Sidebar = () => {
+
+    return(  
+            <div className='sidebar'>
+                <a>Hola</a>
+            </div>
+    );
+
+>>>>>>> Stashed changes
 };
 
 export default Sidebar;

@@ -3,7 +3,11 @@ import Body from './Body';
 
 import Footer from './Footer';
 import Header from './Header';
+<<<<<<< Updated upstream
 import Sidebar from './Sidebar'
+=======
+import Sidebar from './Sidebar';
+>>>>>>> Stashed changes
 
 function App() {
   return (
