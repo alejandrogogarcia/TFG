@@ -1,21 +1,25 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import {IntlProvider} from 'react-intl';
+import {initReactIntl}  from './i18n'
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import App from './modules/app/components/App';
-import {initReactIntl}  from './i18n'
+import { Provider } from 'react-redux';
 
 /* Configure i18n */
 const {locale, messages} = initReactIntl();
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = createRoot(document.getElementById('root'));
 
 root.render(
   <React.StrictMode>
-    <IntlProvider locale={locale} messages={messages}>
-      <App />
-    </IntlProvider>
+    <Provider store={store}>
+      <IntlProvider locale={locale} messages={messages}>
+        <App />
+      </IntlProvider>
+    </Provider>
   </React.StrictMode>
 );

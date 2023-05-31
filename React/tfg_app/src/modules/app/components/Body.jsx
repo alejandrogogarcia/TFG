@@ -5,7 +5,7 @@ const Body = () => {
     return (
         <div className='body'>
             <br/>
-            <a><FormattedMessage id="project.helloworld"/></a>
+            <a>Hola Body</a>
         </div>
         
     );

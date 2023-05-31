@@ -10,18 +10,11 @@ const Header = () => {
 
     return(
         <div className="header">
-            <Navbar bg="dark" expand="lg">
+            <Navbar bg="dark" expand="xl">
                 <Container fluid>
                     <Navbar.Brand href="/">
                         <FormattedMessage id="project.app.Header.AppName"/>
                     </Navbar.Brand>
-<<<<<<< Updated upstream
-                    <div className = "user_icon">
-                        <FaUserCircle size={30}/>
-                    </div>
-=======
-                    
->>>>>>> Stashed changes
                 </Container>
             </Navbar>
         </div>
