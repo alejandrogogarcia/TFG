@@ -6,11 +6,11 @@ import Footer from './Footer';
 import Header from './Header';
 import Sidebar from './Sidebar';
 
-import { Provider } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 function App() {
 
-  const isLoggedIn = true;
+  const isLoggedIn = useSelector((state) => state.user.token);
 
   return (
     <div className="App">

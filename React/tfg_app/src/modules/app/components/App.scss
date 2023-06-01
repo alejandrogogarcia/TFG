@@ -1,12 +1,43 @@
 .header{
+    color: #ffffff;
     position: absolute;
     height: 4em;
     width: 100%;
+
     .navbar{
         height: 100%;
 
     }
 
+    .navbar-brand {
+        color: #ffffff;
+    }
+
+    .header-align-right{
+        display: flex;
+        color: #ffffff;
+        height: 4em;
+            
+        .header-welcome{
+            color: #ffffff;
+            font-size: 20px;
+            margin-top: 6px;
+        }
+
+        .header-button{
+            color: #ffffff;
+        }
+
+        .header-icon{
+            color: #ffffff;
+            margin-top: 10px;
+            height: 32px;
+            width: 32px;
+        }
+
+    }
+    
+  
 }
 
 .flex{
@@ -30,16 +61,7 @@
 }
 
 
-.user_icon {
 
-  color: #ffffff;
-  size: 100px;
-
-}
-
-.navbar-brand {
-    color: #ffffff;
-}
 
 .LoginCard{
     position: absolute;
