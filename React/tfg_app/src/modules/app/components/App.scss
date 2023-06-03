@@ -34,10 +34,7 @@
             height: 32px;
             width: 32px;
         }
-
-    }
-    
-  
+    } 
 }
 
 .flex{
@@ -51,12 +48,26 @@
 }
 
 .sidebar{
+    display: flex;
+    flex-direction: column;
     border-right: 1px solid gray; 
     background-color: #2f6aa5;
     width: 15%; 
-    .nav{
+
+    .sidebar-footer{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 40px; 
     }
+
+    .sidebar-footer-text{
+        margin-top: 0; 
+        margin-bottom: 0;
+    }
+
     .accordion{
+
         --bs-accordion-bg: #2f6aa5;
         --bs-accordion-transition: none;
         --bs-accordion-border-color: none;
@@ -71,6 +82,10 @@
     .accordion-header {
         height: 20%;
     }
+    
+    .custom-accordion-body {
+        --bs-accordion-body-padding-y: 0;
+    }
 
     .accordion-item {
         height: auto;
@@ -82,13 +97,14 @@
 
     }
 
-    .accordion-item{
+    .list-group {
+        --bs-list-group-bg: none;
+        --bs-list-group-border-width: none;
+        --bs-list-group-action-hover-bg: none;
+        --bs-list-group-action-active-bg: none;
+        --bs-list-group-action-hover-color: #ffffff;
     }
-
 }
-
-
-
 
 .LoginCard{
     position: absolute;
@@ -107,3 +123,8 @@
 
 
 }
+
+.no-space{
+
+    margin:0;
+  }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Accordion, Button} from 'react-bootstrap';
+import { Accordion, Button, ListGroup} from 'react-bootstrap';
 
 const Sidebar = () => {
 
@@ -9,22 +9,35 @@ const Sidebar = () => {
             <Accordion.Item eventKey="0">
                 <Accordion.Header className="custom-accordion-header">Accordion Item #1</Accordion.Header>
                 <Accordion.Collapse eventKey="0">
-                    <Accordion.Body>
-                        <Button variant="light">Botón 1</Button>
-                        <Button variant="light">Botón 1</Button>
-                        <Button variant="light">Botón 1</Button>
+                    <Accordion.Body className="custom-accordion-body">
+                        <ListGroup>
+                            <ListGroup.Item action>
+                                <a>Prueba</a>
+                            </ListGroup.Item>
+                            <ListGroup.Item action>
+                                <a>Prueba</a>
+                            </ListGroup.Item>
+                            <ListGroup.Item action>
+                                <a>Prueba</a>
+                            </ListGroup.Item>
+                        </ListGroup>
+                        
                     </Accordion.Body>
                 </Accordion.Collapse>
             </Accordion.Item>
-            <hr/>
+            <hr class="no-space"/>
             <Accordion.Item eventKey="1">
                 <Accordion.Header>Accordion Item #2</Accordion.Header>
                 <Accordion.Body>
                 
                 </Accordion.Body>
             </Accordion.Item>
-            <hr/>
+            <hr class="no-space"/>
         </Accordion>
+        <hr class="no-space"/>
+        <div className='sidebar-footer'>
+            <h5 className='sidebar-footer-text'>TFG - UDC</h5>
+        </div>
     </div>
   );
 };
