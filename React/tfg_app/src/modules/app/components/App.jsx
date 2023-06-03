@@ -2,7 +2,6 @@ import Login from '../../users/components/Login';
 import './App.scss'
 import Body from './Body';
 
-import Footer from './Footer';
 import Header from './Header';
 import Sidebar from './Sidebar';
 

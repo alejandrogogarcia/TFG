@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import {IntlProvider} from 'react-intl';
 import {initReactIntl}  from './i18n'

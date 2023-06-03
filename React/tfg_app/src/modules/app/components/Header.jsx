@@ -24,10 +24,16 @@ const Header = () => {
                             <Navbar.Text className="header-welcome">
                                 Bienvenido, {user.name}
                             </Navbar.Text>
-                            <Dropdown>
+                            <Dropdown  align="end">
                                 <Dropdown.Toggle className="header-button" variant="link" id="dropdown-basic">
                                     <FaUserCircle className="header-icon"/>
                                 </Dropdown.Toggle>
+                                <Dropdown.Menu variant="dark">
+                                    <Dropdown.Item href="#/action-1">Mi Perfil</Dropdown.Item>
+                                    <Dropdown.Item href="#/action-2">Ajustes</Dropdown.Item>
+                                    <Dropdown.Divider />
+                                    <Dropdown.Item href="#/action-3">Cerrar Sesión</Dropdown.Item>
+                                </Dropdown.Menu>
                             </Dropdown>
                             
                         </div>
