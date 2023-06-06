@@ -9,7 +9,9 @@ import { useSelector } from 'react-redux';
 
 function App() {
 
-  const isLoggedIn = useSelector((state) => state.user.token);
+  //const isLoggedIn = useSelector((state) => state.user.token);
+  const isLoggedIn = true;
+
 
   return (
     <div className="App">

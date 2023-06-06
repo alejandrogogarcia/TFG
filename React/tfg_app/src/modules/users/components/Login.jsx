@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Card, Form, Button } from 'react-bootstrap';
-
+import { useDispatch } from 'react-redux';
+import { loginUser } from '../store/userSlice';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -20,6 +21,9 @@ const Login = () => {
     console.log('Email:', email);
     console.log('Password:', password);
   };
+
+  const dispatch = useDispatch();
+
 
   return (
     <div className='LoginCard'> 
@@ -52,6 +56,7 @@ const Login = () => {
                 </Form>
             </Card.Body>
         </Card>
+        <Button onClick={(e)=> {dispatch(loginUser())}}>Prueba de login</Button>
     </div>
   );
 };

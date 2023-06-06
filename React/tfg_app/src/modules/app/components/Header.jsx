@@ -1,14 +1,17 @@
 import { FormattedMessage } from "react-intl";
 import { FaUserCircle } from 'react-icons/fa';
 
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 
 import {Navbar, Dropdown} from 'react-bootstrap';
 import Container from 'react-bootstrap/Container';
+import { logoutuser } from "../../users/store/userSlice";
 
 
 const Header = () => {
+
+    const dispatch = useDispatch();
 
     const user = useSelector((state) => state.user);
 
@@ -32,7 +35,7 @@ const Header = () => {
                                     <Dropdown.Item href="#/action-1">Mi Perfil</Dropdown.Item>
                                     <Dropdown.Item href="#/action-2">Ajustes</Dropdown.Item>
                                     <Dropdown.Divider />
-                                    <Dropdown.Item href="#/action-3">Cerrar Sesión</Dropdown.Item>
+                                    <Dropdown.Item href="/" onClick={(e)=> {dispatch(logoutuser())}}>Cerrar Sesión</Dropdown.Item>
                                 </Dropdown.Menu>
                             </Dropdown>
                             
