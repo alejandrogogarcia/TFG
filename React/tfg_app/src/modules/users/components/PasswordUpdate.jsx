@@ -19,6 +19,7 @@ const PasswordUpdate = () => {
 
     return(
         <div className='pass-update'>
+            <h4>Cambio de contraseña</h4>
             <Form onSubmit={handleSubmit}>
                 <Form.Group controlId="currentPassword">
                     <Form.Label>Contraseña actual</Form.Label>

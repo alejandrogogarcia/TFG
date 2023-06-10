@@ -1,7 +1,7 @@
 import {BrowserRouter, Route, Routes} from 'react-router-dom';
 
 import Home from './Home';
-import PasswordUpdate from '../../users/components/PasswordUpdate';
+import UserProfile from '../../users/components/UserProfile';
 
 
 const Body = () => {
@@ -13,7 +13,7 @@ const Body = () => {
             <BrowserRouter>
                 <Routes>
                     <Route path="/" element={<Home />}/>
-                    <Route exact path="/userProfile" element={<PasswordUpdate/>}/>
+                    <Route exact path="/userProfile" element={<UserProfile/>}/>
                 </Routes>
             </BrowserRouter>
              
