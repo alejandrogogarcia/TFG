@@ -7,7 +7,7 @@ export default {
 
     //Sidebar
     'app.sidebar.products' : 'Products',
-    'app.sidebar.products.searchProduct' : 'Search product',
+    'app.sidebar.products.addProduct' : 'Add product',
     'app.sidebar.products.manageProduct' : 'Manage products',
 
     'app.sidebar.clients' : 'Clients',

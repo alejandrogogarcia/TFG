@@ -124,6 +124,27 @@
 
 }
 
+.body{
+    display: flex;
+    width: 100%;
+
+}
+
+.manage-products{
+    width: 100%;
+
+    .search-box{
+
+        margin: 10%;
+    }
+}
+
+.product-card{
+
+    width: 100%;
+
+}
+
 .no-space{
 
     margin:0;

@@ -22,11 +22,9 @@ const Header = () => {
                     <Navbar.Brand href="/">
                         <FormattedMessage id="project.app.Header.AppName"/>
                     </Navbar.Brand>
-                    {user.token ? 
+                    {//user.token ?
+                    true ? 
                         <div className="header-align-right">
-                            <Navbar.Text className="header-welcome">
-                                Bienvenido, {user.name}
-                            </Navbar.Text>
                             <Dropdown  align="end">
                                 <Dropdown.Toggle className="header-button" variant="link" id="dropdown-basic">
                                     <FaUserCircle className="header-icon"/>
@@ -38,6 +36,9 @@ const Header = () => {
                                     <Dropdown.Item href="/" onClick={(e)=> {dispatch(logoutuser())}}>Cerrar Sesión</Dropdown.Item>
                                 </Dropdown.Menu>
                             </Dropdown>
+                            <Navbar.Text className="header-welcome">
+                                {user.name}
+                            </Navbar.Text>
                             
                         </div>
                     :

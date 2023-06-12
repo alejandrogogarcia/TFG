@@ -15,7 +15,7 @@ const Sidebar = () => {
                     <Accordion.Body className="custom-accordion-body">
                         <ListGroup>
                             <ListGroup.Item action>
-                                <a><FormattedMessage id="app.sidebar.products.searchProduct"/> </a>
+                                <a><FormattedMessage id="app.sidebar.products.addProduct"/> </a>
                             </ListGroup.Item>
                             <ListGroup.Item action>
                                 <a><FormattedMessage id="app.sidebar.products.manageProducts"/> </a>
