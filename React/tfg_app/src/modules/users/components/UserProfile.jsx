@@ -5,7 +5,7 @@ import PasswordUpdate from "./PasswordUpdate";
 const UserProfile = () => {
 
     return(
-        <div>
+        <div className="user-profile">
             <h2>Información del usuario</h2>
 
                 <Table>

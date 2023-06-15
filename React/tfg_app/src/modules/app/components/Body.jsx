@@ -4,6 +4,8 @@ import Home from './Home';
 import UserProfile from '../../users/components/UserProfile';
 import ManageProducts from '../../products/components/ManageProducts';
 import ProductCard from '../../products/components/ProductCard';
+import ProductCreationForm from '../../products/components/ProductCreationForm';
+import ProductEditForm from '../../products/components/ProductEditForm';
 
 
 const Body = () => {
@@ -17,6 +19,10 @@ const Body = () => {
                     <Route exact path="/userProfile" element={<UserProfile/>}/>
                     <Route exact path="/manageProducts" element={<ManageProducts/>}/>
                     <Route exact path="/product" element={<ProductCard/>}/>
+                    <Route exact path="/createProduct" element={<ProductCreationForm/>}/>
+                    <Route exact path="/productEditForm" element={<ProductEditForm/>}/>
+
+                    
                 </Routes>
             </BrowserRouter>
              

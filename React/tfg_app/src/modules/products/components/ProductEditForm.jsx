@@ -1,12 +1,12 @@
 
 import { Form, InputGroup, Button } from "react-bootstrap";
 
-const ProductCreationForm = () => {
+const ProductEditForm = () => {
 
     return(
 
-        <div className="product-creation-form">
-            <h1>Crear un un nuevo producto</h1>
+        <div className="product-edit-form">
+            <h1>Editar Producto</h1>
             <Form>
                 <Form.Group>
                     <Form.Label>Name</Form.Label>
@@ -48,22 +48,14 @@ const ProductCreationForm = () => {
                     </InputGroup>
                 </Form.Group>
                 <Form.Group>
-                    <Form.Label>Product stock</Form.Label>
-                    <InputGroup>
-                        <Form.Control
-                            type="number"
-                        />
-                        <InputGroup.Text>und</InputGroup.Text>
-                    </InputGroup>
-                </Form.Group>
-                <Form.Group>
                     <Form.Label>Product image</Form.Label>
                     <Form.Control
                         type="file"
                     />
                 </Form.Group>
             </Form>
-            <Button>Create Product</Button>
+            <Button>Edit Product</Button>
+
 
         </div>
 
@@ -71,4 +63,4 @@ const ProductCreationForm = () => {
 
 }
 
-export default ProductCreationForm;
+export default ProductEditForm;

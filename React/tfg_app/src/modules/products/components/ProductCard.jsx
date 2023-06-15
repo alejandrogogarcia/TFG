@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, Button } from 'react-bootstrap';
+import ProductEditStock from './ProductEditStock';
 
 const ProductCard = () => {
+
+    const [show, setShow] = useState(false);
     
         return (
             <div className='product-card'>
@@ -18,6 +21,10 @@ const ProductCard = () => {
                         <Button variant="primary">Editar Stock</Button>
                     </Card.Body>
                 </Card>
+                <ProductEditStock
+                    show={show}
+                    setShow={setShow}
+                />
             </div>
         );
       }
