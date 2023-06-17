@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
-import { Card, Button } from 'react-bootstrap';
+import { Card, Button, Modal } from 'react-bootstrap';
 import ProductEditStock from './ProductEditStock';
 
 const ProductCard = () => {
 
-    const [show, setShow] = useState(false);
+    const [showModal, setShowModal] = useState(false);
+    
+      const handleShowModal = () => {
+        setShowModal(true);
+      };
     
         return (
             <div className='product-card'>
@@ -18,13 +22,30 @@ const ProductCard = () => {
                         <Card.Text>Stock: 3</Card.Text>
                         <Card.Text>Fecha de creación</Card.Text>
                         <Button variant="primary">Editar Producto</Button>
-                        <Button variant="primary">Editar Stock</Button>
+                        <Button variant="primary" onClick={handleShowModal}>Editar Stock</Button>
                     </Card.Body>
                 </Card>
                 <ProductEditStock
-                    show={show}
-                    setShow={setShow}
-                />
+                    showModal={showModal}
+                    setShowModal={setShowModal}
+                /> 
+
+                {/* <Modal show={showModal} onHide={handleClose}>
+                    <Modal.Header closeButton>
+                    <Modal.Title>Título do Modal</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                    <p>Conteúdo do modal...</p>
+                    </Modal.Body>
+                    <Modal.Footer>
+                    <Button variant="secondary" onClick={handleClose}>
+                        Fechar
+                    </Button>
+                    <Button variant="primary" onClick={handleClose}>
+                        Salvar
+                    </Button>
+                    </Modal.Footer>
+                </Modal> */}
             </div>
         );
       }

@@ -21,6 +21,12 @@ const ProductCreationForm = () => {
                     />
                 </Form.Group>
                 <Form.Group>
+                    <Form.Label>Referece</Form.Label>
+                    <Form.Control
+                        type="text"
+                    />
+                </Form.Group>
+                <Form.Group>
                     <Form.Label>Category</Form.Label>
                     <Form.Select aria-label="Default select example">
                         <option>Open this select menu</option>

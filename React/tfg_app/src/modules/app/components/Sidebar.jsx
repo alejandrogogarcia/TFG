@@ -1,6 +1,7 @@
 import React from 'react';
 import { Accordion, Button, ListGroup} from 'react-bootstrap';
 import {FormattedMessage} from 'react-intl';
+import { Link } from 'react-router-dom';
 
 const Sidebar = () => {
 
@@ -14,11 +15,11 @@ const Sidebar = () => {
                 <Accordion.Collapse eventKey="0">
                     <Accordion.Body className="custom-accordion-body">
                         <ListGroup>
-                            <ListGroup.Item action>
-                                <a><FormattedMessage id="app.sidebar.products.addProduct"/> </a>
+                            <ListGroup.Item >
+                                <Link to="/createProduct"><FormattedMessage id="app.sidebar.products.addProduct"/></Link>
                             </ListGroup.Item>
-                            <ListGroup.Item action>
-                                <a><FormattedMessage id="app.sidebar.products.manageProducts"/> </a>
+                            <ListGroup.Item >
+                                <Link to="/manageProducts"><FormattedMessage id="app.sidebar.products.manageProducts"/></Link>
                             </ListGroup.Item>
                         </ListGroup>    
                     </Accordion.Body>

@@ -2,7 +2,7 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import {IntlProvider} from 'react-intl';
 import {initReactIntl}  from './i18n'
-
+import {BrowserRouter, Route, Routes} from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import App from './modules/app/components/App';
@@ -18,7 +18,9 @@ root.render(
   <React.StrictMode>
     <Provider store={store}>
       <IntlProvider locale={locale} messages={messages}>
-        <App />
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
       </IntlProvider>
     </Provider>
   </React.StrictMode>

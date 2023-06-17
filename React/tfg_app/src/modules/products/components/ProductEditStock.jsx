@@ -1,14 +1,15 @@
 import { Button, Form, Modal } from "react-bootstrap"; 
 
-const ProductEditStock = ({ show, setShow}) => {
+const ProductEditStock = ({ showModal, setShowModal}) => {
 
     const handleClose = () => {
-        setShow(false);
+        setShowModal(false);
       };
 
-    <div>
-        <Modal show={show} onHide={handleClose}>
-            <Modal.Header closeButton>
+      return(
+        <div>
+        <Modal show={showModal} onHide={handleClose}>
+            <Modal.Header>
                 <Modal.Title>Edit Produc Stock</Modal.Title>
             </Modal.Header>
             <Modal.Body>
@@ -37,6 +38,9 @@ const ProductEditStock = ({ show, setShow}) => {
         </Modal>
 
     </div>
+
+      );
+    
 }
 
 export default ProductEditStock;
