@@ -50,4 +50,4 @@ const ProductCard = () => {
         );
       }
 
-export default ProductCard
+export default ProductCard;
