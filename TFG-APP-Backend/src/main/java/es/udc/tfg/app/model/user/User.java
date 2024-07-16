@@ -2,11 +2,16 @@ package es.udc.tfg.app.model.user;
 
 import es.udc.tfg.app.util.enums.Languages;
 import es.udc.tfg.app.util.enums.UserRole;
+import jakarta.persistence.*;
 
 import java.util.Calendar;
 
+@Entity
+@Table(name = "users")
 public class User {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String firstName;
