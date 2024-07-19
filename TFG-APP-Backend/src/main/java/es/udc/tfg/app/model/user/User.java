@@ -41,10 +41,11 @@ public class User {
     public User() {
     }
 
-    public User(String firstName, String lastName, String dni, String email, Calendar birthDate, Languages language, UserRole role, String image, boolean isActive) {
+    public User(String firstName, String lastName, String dni, String encryptedPassword, String email, Calendar birthDate, Languages language, UserRole role, String image, boolean isActive) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.dni = dni;
+        this.encryptedPassword = encryptedPassword;
         this.email = email;
         this.birthDate = birthDate;
         this.createDate = Calendar.getInstance();

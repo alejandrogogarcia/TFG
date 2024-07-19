@@ -18,7 +18,7 @@ public interface UserService {
     public void updateUser(Long userId, UserData userData)
             throws InstanceNotFoundException, InputValidationException, DuplicateInstanceException;
 
-    public void updateUserState(Long userId, boolean state) throws InstanceNotFoundException;
+    public void changeUserState(Long userId) throws InstanceNotFoundException;
 
     public void updateUserRole(Long userId, String role) throws InstanceNotFoundException, InputValidationException;
 
