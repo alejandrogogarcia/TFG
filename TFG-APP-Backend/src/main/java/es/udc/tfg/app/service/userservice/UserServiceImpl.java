@@ -92,41 +92,60 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public void updateUserRole(Long userId, String role) throws InstanceNotFoundException, InputValidationException {
+        User user = userDao.find(userId);
+        UserRole enumRole = null;
 
+        try {
+            enumRole = UserRole.valueOf(role);
+        }catch (IllegalArgumentException e){
+            throw new InputValidationException(role, "Role should be UserRole type");
+        }
+
+        if (enumRole != user.getRole()){
+            user.setRole(enumRole);
+        }
     }
 
     @Override
     public User findUserById(Long userId) throws InstanceNotFoundException {
-        return null;
+        return userDao.find(userId);
     }
 
     @Override
     public User findUserByEmail(String email) throws InstanceNotFoundException, InputValidationException {
-        return null;
-    }
+        ValidatorProperties.validateEmail(email);
+        return userDao.findByEmail(email);    }
 
     @Override
     public User findUserByDni(String dni) throws InstanceNotFoundException, InputValidationException {
-        return null;
+
+        ValidatorProperties.validateDni(dni);
+        return userDao.findByDni(dni);
     }
 
     @Override
     public List<User> findUsersByFirstName(String firstName) {
-        return List.of();
+        return userDao.findByFirstName(firstName);
     }
 
     @Override
     public List<User> findUsersByLastName(String lastName) {
-        return List.of();
+        return userDao.findByLastName(lastName);
     }
 
     @Override
     public List<User> findUsersByUserRole(String role) throws InputValidationException {
-        return List.of();
+        UserRole roleEnum = null;
+        try {
+            roleEnum = UserRole.valueOf(role);
+        } catch (IllegalArgumentException e) {
+            throw new InputValidationException(role, "Role should be UserRole type");
+        }
+        return userDao.findByUserRole(roleEnum);
     }
 
     @Override
     public List<User> findAllUsers() {
-        return List.of();
+        return userDao.findAll();
     }
 }
