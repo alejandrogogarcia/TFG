@@ -71,7 +71,7 @@ public class UserServiceImpl implements UserService{
     public void changeUserPassword(Long userId, String oldPassword, String newPassword) throws InstanceNotFoundException, IncorrectPasswordException, InputValidationException {
         User user = userDao.find(userId);
         String encryptedPassword = user.getEncryptedPassword();
-        if (!PasswordEncrypter.isCorrectPassword(encryptedPassword, oldPassword)) {
+        if (!PasswordEncrypter.isCorrectPassword(oldPassword, encryptedPassword)) {
             throw new IncorrectPasswordException(user.getEmail());
         }
         ValidatorProperties.validatePassword(newPassword);
@@ -82,6 +82,40 @@ public class UserServiceImpl implements UserService{
     @Override
     public void updateUser(Long userId, UserData userData) throws InstanceNotFoundException, InputValidationException, DuplicateInstanceException {
 
+        User user = userDao.find(userId);
+
+        ValidatorProperties.validateDni(userData.getDni());
+
+        if (!user.getDni().toLowerCase().equals(userData.getDni().toLowerCase())) {
+            try {
+                userDao.findByDni(userData.getDni());
+                throw new DuplicateInstanceException(userData.getDni(), User.class.getName());
+            } catch (InstanceNotFoundException e) {
+            }
+        }
+
+        ValidatorProperties.validateEmail(userData.getEmail());
+
+        if (!user.getEmail().toLowerCase().equals(userData.getEmail().toLowerCase())) {
+            try {
+                userDao.findByEmail(userData.getEmail());
+                throw new DuplicateInstanceException(userData.getEmail(), User.class.getName());
+            } catch (InstanceNotFoundException e) {
+            }
+        }
+
+        ValidatorProperties.validateString(userData.getFirstName());
+        ValidatorProperties.validateString(userData.getLastName());
+        Calendar birthDate = CalendarConversor.stringToCalendar(userData.getBirthDate());
+        ValidatorProperties.validateCalendarPastDate(birthDate);
+        Languages language = LanguageConversor.stringToLanguage(userData.getLanguage());
+
+        user.setDni(userData.getDni());
+        user.setEmail(userData.getEmail());
+        user.setFirstName(userData.getFirstName());
+        user.setLastName(userData.getLastName());
+        user.setBirthDate(birthDate);
+        user.setLanguage(language);
     }
 
     @Override
