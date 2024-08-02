@@ -10,7 +10,7 @@ public interface UserService {
     public User registerUser(RegisterData registerData)
             throws InputValidationException, DuplicateInstanceException;
 
-    public User loginUser(LoginData loginData) throws InstanceNotFoundException, IncorrectPasswordException;
+    public User loginUser(LoginData loginData) throws InstanceNotFoundException, IncorrectPasswordException, DisabledUserException;
 
     public void changeUserPassword(Long userId, String oldPassword, String newPassword)
             throws InstanceNotFoundException, IncorrectPasswordException, InputValidationException;

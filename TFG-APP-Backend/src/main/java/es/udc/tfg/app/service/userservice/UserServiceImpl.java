@@ -58,11 +58,14 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public User loginUser(LoginData loginData) throws InstanceNotFoundException, IncorrectPasswordException {
+    public User loginUser(LoginData loginData) throws InstanceNotFoundException, IncorrectPasswordException, DisabledUserException {
         User user = userDao.findByDni(loginData.getDni());
         String encryptedPassword = user.getEncryptedPassword();
         if (!PasswordEncrypter.isCorrectPassword(loginData.getPassword(), encryptedPassword)) {
             throw new IncorrectPasswordException(user.getDni());
+        }
+        if (!user.isActive()){
+            throw new DisabledUserException(user.getId());
         }
         return user;
     }

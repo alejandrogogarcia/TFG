@@ -28,8 +28,12 @@ public class User {
 
     private Calendar createDate;
 
+    @Column(columnDefinition = "ENUM('ESP', 'GAL', 'ENG')")
+    @Enumerated(EnumType.STRING)
     private Languages language;
 
+    @Column(columnDefinition = "ENUM('EMPLOYEE', 'CLERK', 'ADMIN')")
+    @Enumerated(EnumType.STRING)
     private UserRole role;
 
     private String image;
