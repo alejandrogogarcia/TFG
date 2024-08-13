@@ -1,6 +1,8 @@
 package es.udc.tfg.app.rest.controller;
 
 import es.udc.tfg.app.model.user.User;
+import es.udc.tfg.app.rest.common.JwtGenerator;
+import es.udc.tfg.app.rest.common.JwtInfo;
 import es.udc.tfg.app.rest.dtos.AuthenticatedUserDto;
 import es.udc.tfg.app.rest.dtos.UserDto;
 import es.udc.tfg.app.service.userservice.LoginData;
@@ -24,12 +26,14 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("login")
+    @Autowired
+    private JwtGenerator jwtGenerator;
+
+    @PostMapping("/login")
     public AuthenticatedUserDto login(@RequestBody LoginData params) throws IncorrectPasswordException, InstanceNotFoundException, DisabledUserException {
 
         User user = userService.loginUser(params);
-//        return UserConversor.toAuthenticatedUserDto(generateToken(user), user);
-        return UserConversor.toAuthenticatedUserDto("Token de prueba", user);
+        return UserConversor.toAuthenticatedUserDto(generateToken(user), user);
     }
 
 
@@ -49,9 +53,7 @@ public class UserController {
 
         User user = userService.findUserById(id);
 
-        return UserConversor.toAuthenticatedUserDto("Token de prueba", user);
-
-//        return UserConversor.toAuthenticatedUserDto(generateToken(user), user);
+        return UserConversor.toAuthenticatedUserDto(generateToken(user), user);
 
     }
 
@@ -62,12 +64,10 @@ public class UserController {
 
     }
 
-//    private String generateToken(User user) {
-//
-//        JwtInfo jwtInfo = new JwtInfo(user.getId(), user.getDni(), user.getRole().toString());
-//
-//        return jwtGenerator.generate(jwtInfo);
-//
-//    }
+    private String generateToken(User user) {
+
+        JwtInfo jwtInfo = new JwtInfo(user.getRole().toString(), user.getDni(), user.getId());
+        return jwtGenerator.generate(jwtInfo);
+    }
 
 }

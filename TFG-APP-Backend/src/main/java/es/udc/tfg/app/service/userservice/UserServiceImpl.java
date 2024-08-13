@@ -5,24 +5,28 @@ import es.udc.tfg.app.model.user.UserDao;
 import es.udc.tfg.app.util.conversors.CalendarConversor;
 import es.udc.tfg.app.util.conversors.LanguageConversor;
 import es.udc.tfg.app.util.conversors.RoleConversor;
-import es.udc.tfg.app.util.encrypt.PasswordEncrypter;
 import es.udc.tfg.app.util.enums.Languages;
 import es.udc.tfg.app.util.enums.UserRole;
 import es.udc.tfg.app.util.exceptions.*;
 import es.udc.tfg.app.util.validator.ValidatorProperties;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Calendar;
 import java.util.List;
 
-@Transactional
 @Service
+@Transactional
 public class UserServiceImpl implements UserService{
 
     @Autowired
     private UserDao userDao;
+
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
+
 
     @Override
     public User registerUser(RegisterData registerData) throws InputValidationException, DuplicateInstanceException {
@@ -41,7 +45,6 @@ public class UserServiceImpl implements UserService{
         }catch (InstanceNotFoundException e) {
 
             ValidatorProperties.validatePassword(registerData.getPassword());
-            String encryptedPassword = PasswordEncrypter.crypt(registerData.getPassword());
             String firstName = registerData.getFirstname();
             ValidatorProperties.validateString(firstName);
             String lastName = registerData.getLastName();
@@ -50,7 +53,7 @@ public class UserServiceImpl implements UserService{
             ValidatorProperties.validateCalendarPastDate(birthDate);
             Languages language = LanguageConversor.stringToLanguage(registerData.getLanguage());
             UserRole role = RoleConversor.stringToRole(registerData.getRole());
-            User user = new User(firstName, lastName, registerData.getDni(), encryptedPassword,
+            User user = new User(firstName, lastName, registerData.getDni(), passwordEncoder.encode(registerData.getPassword()),
                     registerData.getEmail(), birthDate, language, role, registerData.getImage(), false);
             userDao.save(user);
             return user;
@@ -61,7 +64,7 @@ public class UserServiceImpl implements UserService{
     public User loginUser(LoginData loginData) throws InstanceNotFoundException, IncorrectPasswordException, DisabledUserException {
         User user = userDao.findByDni(loginData.getDni());
         String encryptedPassword = user.getEncryptedPassword();
-        if (!PasswordEncrypter.isCorrectPassword(loginData.getPassword(), encryptedPassword)) {
+        if (!passwordEncoder.matches(loginData.getPassword(), encryptedPassword)) {
             throw new IncorrectPasswordException(user.getDni());
         }
         if (!user.isActive()){
@@ -74,11 +77,11 @@ public class UserServiceImpl implements UserService{
     public void changeUserPassword(Long userId, String oldPassword, String newPassword) throws InstanceNotFoundException, IncorrectPasswordException, InputValidationException {
         User user = userDao.find(userId);
         String encryptedPassword = user.getEncryptedPassword();
-        if (!PasswordEncrypter.isCorrectPassword(oldPassword, encryptedPassword)) {
+        if (!passwordEncoder.matches(oldPassword, encryptedPassword)) {
             throw new IncorrectPasswordException(user.getEmail());
         }
         ValidatorProperties.validatePassword(newPassword);
-        user.setEncryptedPassword(PasswordEncrypter.crypt(newPassword));
+        user.setEncryptedPassword(passwordEncoder.encode(newPassword));
 
     }
 
