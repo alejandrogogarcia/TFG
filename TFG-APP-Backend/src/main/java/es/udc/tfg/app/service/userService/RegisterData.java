@@ -1,8 +1,8 @@
-package es.udc.tfg.app.service.userservice;
+package es.udc.tfg.app.service.userService;
 
 public class RegisterData {
 
-    private String firstname;
+    private String firstName;
 
     private String lastName;
 
@@ -10,7 +10,7 @@ public class RegisterData {
 
     private String email;
 
-    private String password;
+    //private String password;
 
     private String birthDate;
 
@@ -23,25 +23,24 @@ public class RegisterData {
     public RegisterData() {
     }
 
-    public RegisterData(String firstname, String lastName, String dni, String email, String password, String birthDate,
+    public RegisterData(String firstName, String lastName, String dni, String email, String birthDate,
                         String language, String role, String image) {
-        this.firstname = firstname;
+        this.firstName = firstName;
         this.lastName = lastName;
         this.dni = dni;
         this.email = email;
-        this.password = password;
         this.birthDate = birthDate;
         this.language = language;
         this.role = role;
         this.image = image;
     }
 
-    public String getFirstname() {
-        return firstname;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setFirstname(String firstname) {
-        this.firstname = firstname;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
     public String getLastName() {
@@ -67,15 +66,6 @@ public class RegisterData {
     public void setEmail(String email) {
         this.email = email;
     }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
 
     public String getBirthDate() {
         return birthDate;

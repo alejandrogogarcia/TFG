@@ -1,10 +1,10 @@
 package es.udc.tfg.app.userService;
 
 import es.udc.tfg.app.model.user.User;
-import es.udc.tfg.app.service.userservice.LoginData;
-import es.udc.tfg.app.service.userservice.RegisterData;
-import es.udc.tfg.app.service.userservice.UserData;
-import es.udc.tfg.app.service.userservice.UserService;
+import es.udc.tfg.app.service.userService.LoginData;
+import es.udc.tfg.app.service.userService.RegisterData;
+import es.udc.tfg.app.service.userService.UserData;
+import es.udc.tfg.app.service.userService.UserService;
 
 import es.udc.tfg.app.util.conversors.CalendarConversor;
 import es.udc.tfg.app.util.encrypt.PasswordEncrypter;

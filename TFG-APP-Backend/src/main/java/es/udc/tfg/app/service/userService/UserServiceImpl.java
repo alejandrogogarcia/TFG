@@ -1,7 +1,10 @@
-package es.udc.tfg.app.service.userservice;
+package es.udc.tfg.app.service.userService;
 
+import es.udc.tfg.app.model.user.TokenGenerator;
 import es.udc.tfg.app.model.user.User;
 import es.udc.tfg.app.model.user.UserDao;
+import es.udc.tfg.app.service.Block;
+import es.udc.tfg.app.util.conversors.BooleanConversor;
 import es.udc.tfg.app.util.conversors.CalendarConversor;
 import es.udc.tfg.app.util.conversors.LanguageConversor;
 import es.udc.tfg.app.util.conversors.RoleConversor;
@@ -10,10 +13,16 @@ import es.udc.tfg.app.util.enums.UserRole;
 import es.udc.tfg.app.util.exceptions.*;
 import es.udc.tfg.app.util.validator.ValidatorProperties;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Slice;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 
+import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.List;
 
@@ -27,13 +36,27 @@ public class UserServiceImpl implements UserService{
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
+    @Autowired
+    private JavaMailSender mailSender;
+
+    public void sendPasswordResetEmail(String to, String token) throws MessagingException {
+        String resetUrl = "http://localhost:3000/resetPass?token=" + token;
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+        helper.setTo(to);
+        helper.setSubject("Establece tu contraseña");
+        helper.setText("<p>Haz clic en el siguiente enlace para establecer tu contraseña:</p>"
+                + "<a href='" + resetUrl + "'>Restablecer contraseña</a>", true);
+
+        mailSender.send(message);
+    }
 
     @Override
-    public User registerUser(RegisterData registerData) throws InputValidationException, DuplicateInstanceException {
+    public User registerUser(RegisterData registerData) throws InputValidationException, DuplicateInstanceException, MessagingException {
 
         ValidatorProperties.validateDni(registerData.getDni());
         ValidatorProperties.validateEmail(registerData.getEmail());
-
         try {
             try {
                 userDao.findByDni(registerData.getDni());
@@ -43,9 +66,7 @@ public class UserServiceImpl implements UserService{
                 throw new DuplicateInstanceException(registerData.getEmail(), User.class.getName());
             }
         }catch (InstanceNotFoundException e) {
-
-            ValidatorProperties.validatePassword(registerData.getPassword());
-            String firstName = registerData.getFirstname();
+            String firstName = registerData.getFirstName();
             ValidatorProperties.validateString(firstName);
             String lastName = registerData.getLastName();
             ValidatorProperties.validateString(lastName);
@@ -53,23 +74,28 @@ public class UserServiceImpl implements UserService{
             ValidatorProperties.validateCalendarPastDate(birthDate);
             Languages language = LanguageConversor.stringToLanguage(registerData.getLanguage());
             UserRole role = RoleConversor.stringToRole(registerData.getRole());
-            User user = new User(firstName, lastName, registerData.getDni(), passwordEncoder.encode(registerData.getPassword()),
+            User user = new User(firstName, lastName, registerData.getDni(), null,
                     registerData.getEmail(), birthDate, language, role, registerData.getImage(), false);
+            sendPasswordResetEmail(user.getEmail(), user.getToken());
             userDao.save(user);
             return user;
         }
     }
 
     @Override
-    public User loginUser(LoginData loginData) throws InstanceNotFoundException, IncorrectPasswordException, DisabledUserException {
-        User user = userDao.findByDni(loginData.getDni());
-        String encryptedPassword = user.getEncryptedPassword();
-        if (!passwordEncoder.matches(loginData.getPassword(), encryptedPassword)) {
-            throw new IncorrectPasswordException(user.getDni());
+    public User loginUser(LoginData loginData) throws IncorrectLoginException, DisabledUserException {
+        User user = null;
+        try {
+            user = userDao.findByDni(loginData.getDni());
+        }catch (InstanceNotFoundException e) {
+            throw new IncorrectLoginException(loginData.getDni(), loginData.getPassword());
         }
         if (!user.isActive()){
             throw new DisabledUserException(user.getId());
         }
+        if (!passwordEncoder.matches(loginData.getPassword(), user.getEncryptedPassword()))
+            throw new IncorrectLoginException(loginData.getDni(), loginData.getPassword());
+
         return user;
     }
 
@@ -78,7 +104,7 @@ public class UserServiceImpl implements UserService{
         User user = userDao.find(userId);
         String encryptedPassword = user.getEncryptedPassword();
         if (!passwordEncoder.matches(oldPassword, encryptedPassword)) {
-            throw new IncorrectPasswordException(user.getEmail());
+            throw new IncorrectPasswordException();
         }
         ValidatorProperties.validatePassword(newPassword);
         user.setEncryptedPassword(passwordEncoder.encode(newPassword));
@@ -86,8 +112,35 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public void updateUser(Long userId, UserData userData) throws InstanceNotFoundException, InputValidationException, DuplicateInstanceException {
+    public void setUserPassword(String dni, String token, String password) throws InstanceNotFoundException, IllegalArgumentException  {
 
+        User user = userDao.findByDni(dni);
+        System.out.println(token);
+        if (user.getToken() == null || !token.equals(user.getToken()) || user.getExpiryDate() == null || user.getExpiryDate().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Token inválido o ha expirado");
+        }
+        user.setActive(true);
+        user.setEncryptedPassword(passwordEncoder.encode(password));
+        user.setToken(null);
+        user.setExpiryDate(null);
+    }
+
+    @Override
+    public void resetUserPassword(Long id) throws InstanceNotFoundException, IllegalArgumentException, MessagingException {
+
+        User user = userDao.find(id);
+        String token =  TokenGenerator.generateToken();
+        sendPasswordResetEmail(user.getEmail(), token);
+        user.setActive(false);
+        user.setToken(token);
+        user.setExpiryDate(LocalDateTime.now().plusDays(3));
+    }
+
+    @Override
+    public void updateUser(Long userId, UserData userData, Long authenticatedUserId) throws InstanceNotFoundException, InputValidationException, DuplicateInstanceException, PermissionException{
+        if (!userId.equals(authenticatedUserId) && !userDao.find(authenticatedUserId).getRole().equals(UserRole.ADMIN)) {
+            throw new PermissionException();
+        }
         User user = userDao.find(userId);
 
         ValidatorProperties.validateDni(userData.getDni());
@@ -115,6 +168,8 @@ public class UserServiceImpl implements UserService{
         Calendar birthDate = CalendarConversor.stringToCalendar(userData.getBirthDate());
         ValidatorProperties.validateCalendarPastDate(birthDate);
         Languages language = LanguageConversor.stringToLanguage(userData.getLanguage());
+        UserRole userRole = RoleConversor.stringToRole(userData.getRole());
+        boolean isActive = BooleanConversor.stringToBoolean(userData.getIsActive());
 
         user.setDni(userData.getDni());
         user.setEmail(userData.getEmail());
@@ -122,6 +177,11 @@ public class UserServiceImpl implements UserService{
         user.setLastName(userData.getLastName());
         user.setBirthDate(birthDate);
         user.setLanguage(language);
+        user.setRole(userRole);
+        user.setActive(isActive);
+        if (userData.getImage()!= null){
+            user.setImage(userData.getImage());
+        }
     }
 
     @Override
@@ -154,7 +214,7 @@ public class UserServiceImpl implements UserService{
     @Override
     public User findUserByEmail(String email) throws InstanceNotFoundException, InputValidationException {
         ValidatorProperties.validateEmail(email);
-        return userDao.findByEmail(email);    }
+        return userDao.findByEmail(email); }
 
     @Override
     public User findUserByDni(String dni) throws InstanceNotFoundException, InputValidationException {
@@ -164,28 +224,19 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public List<User> findUsersByFirstName(String firstName) {
-        return userDao.findByFirstName(firstName);
-    }
+    public Block<User> findUsersByKeywords(String keywords, String role, int page, int size) throws InputValidationException {
 
-    @Override
-    public List<User> findUsersByLastName(String lastName) {
-        return userDao.findByLastName(lastName);
-    }
-
-    @Override
-    public List<User> findUsersByUserRole(String role) throws InputValidationException {
         UserRole roleEnum = null;
-        try {
-            roleEnum = UserRole.valueOf(role);
-        } catch (IllegalArgumentException e) {
-            throw new InputValidationException(role, "Role should be UserRole type");
+        if (role != null) {
+            try {
+                roleEnum = UserRole.valueOf(role);
+            } catch (IllegalArgumentException e) {
+                throw new InputValidationException(role, "Role should be UserRole type");
+            }
         }
-        return userDao.findByUserRole(roleEnum);
+        Slice<User> slice = userDao.findByKeywords(keywords, roleEnum, page, size);
+
+        return new Block<>(slice.getContent(), slice.hasNext());
     }
 
-    @Override
-    public List<User> findAllUsers() {
-        return userDao.findAll();
-    }
 }

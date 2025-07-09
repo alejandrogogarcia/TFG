@@ -10,6 +10,8 @@ public class UserDto {
 	private String language;
 	private String birthDate;
 	private String role;
+	private String image;
+	private String isActive;
 	
 	public interface AllValidations {
 	}
@@ -21,7 +23,7 @@ public class UserDto {
 	}	
 
 	public UserDto(Long id, String firstName, String lastName, String email, String dni,
-			String language, String birthDate, String role) {
+			String language, String birthDate, String role, String image, String isActive) {
 		this.id = id;
 		this.firstName = firstName.trim();
 		this.lastName = lastName.trim();
@@ -30,6 +32,8 @@ public class UserDto {
 		this.language = language;
 		this.birthDate = birthDate;
 		this.role = role;
+		this.image = image;
+		this.isActive = isActive;
 	}
 
 	public Long getId() {
@@ -96,7 +100,16 @@ public class UserDto {
 	public void setBirthDate(String birthDate) {
 		this.birthDate = birthDate;
 	}
-	
-	
 
+	public String getImage() { return image; }
+
+	public void setImage(String image) { this.image = image; }
+
+	public String getIsActive() {
+		return isActive;
+	}
+
+	public void setIsActive(String isActive) {
+		this.isActive = isActive;
+	}
 }

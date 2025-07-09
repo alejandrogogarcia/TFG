@@ -2,6 +2,7 @@ package es.udc.tfg.app.model.user;
 
 import es.udc.tfg.app.util.enums.Languages;
 import es.udc.tfg.app.util.enums.UserRole;
+import java.time.LocalDateTime;
 import jakarta.persistence.*;
 
 import java.util.Calendar;
@@ -13,6 +14,10 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    private String token;
+
+    private LocalDateTime expiryDate;
 
     private String firstName;
 
@@ -36,6 +41,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
+    @Column(columnDefinition = "LONGTEXT")
     private String image;
 
     private boolean isActive;
@@ -46,6 +52,8 @@ public class User {
     }
 
     public User(String firstName, String lastName, String dni, String encryptedPassword, String email, Calendar birthDate, Languages language, UserRole role, String image, boolean isActive) {
+        this.token= TokenGenerator.generateToken();
+        this.expiryDate = LocalDateTime.now().plusDays(3);
         this.firstName = firstName;
         this.lastName = lastName;
         this.dni = dni;
@@ -67,6 +75,22 @@ public class User {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public LocalDateTime getExpiryDate() {
+        return expiryDate;
+    }
+
+    public void setExpiryDate(LocalDateTime expiryDate) {
+        this.expiryDate = expiryDate;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 
     public String getFirstName() {

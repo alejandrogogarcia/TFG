@@ -1,4 +1,4 @@
-package es.udc.tfg.app.service.userservice;
+package es.udc.tfg.app.service.userService;
 
 public class PassChangeData {
 	

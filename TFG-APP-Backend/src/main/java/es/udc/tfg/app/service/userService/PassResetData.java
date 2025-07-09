@@ -1,16 +1,19 @@
-package es.udc.tfg.app.service.userservice;
+package es.udc.tfg.app.service.userService;
 
-public class LoginData {
-	
+public class PassResetData {
+
 	private String dni;
-		
+
+	private String token;
+
 	private String password;
 
-	public LoginData() {
+	public PassResetData() {
 	}
 
-	public LoginData(String dni, String password) {
+	public PassResetData(String dni, String token, String password) {
 		this.dni = dni;
+		this.token = token;
 		this.password = password;
 	}
 
@@ -22,6 +25,14 @@ public class LoginData {
 		this.dni = dni;
 	}
 
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
+	}
+
 	public String getPassword() {
 		return password;
 	}
@@ -29,5 +40,4 @@ public class LoginData {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-
 }

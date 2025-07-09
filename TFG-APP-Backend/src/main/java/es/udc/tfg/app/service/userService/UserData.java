@@ -1,4 +1,4 @@
-package es.udc.tfg.app.service.userservice;
+package es.udc.tfg.app.service.userService;
 
 public class UserData {
 	
@@ -16,11 +16,14 @@ public class UserData {
 	
 	private String image;
 
+	private String role;
+
+	private String isActive;
+
 	public UserData() {
 	}
 
-	public UserData(String firstName, String lastName, String dni, String email, String birthDate, String language,
-			String image) {
+	public UserData(String firstName, String lastName, String dni, String email, String birthDate, String language, String image, String role, String isActive) {
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.dni = dni;
@@ -28,6 +31,8 @@ public class UserData {
 		this.birthDate = birthDate;
 		this.language = language;
 		this.image = image;
+		this.role = role;
+		this.isActive = isActive;
 	}
 
 	public String getFirstName() {
@@ -85,5 +90,20 @@ public class UserData {
 	public void setImage(String image) {
 		this.image = image;
 	}
-	
+
+	public String getIsActive() {
+		return isActive;
+	}
+
+	public void setIsActive(String isActive) {
+		this.isActive = isActive;
+	}
+
+	public String getRole() {
+		return role;
+	}
+
+	public void setRole(String role) {
+		this.role = role;
+	}
 }

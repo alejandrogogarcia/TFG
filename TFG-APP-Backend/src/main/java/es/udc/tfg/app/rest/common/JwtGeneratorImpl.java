@@ -36,6 +36,7 @@ public class JwtGeneratorImpl implements JwtGenerator {
                 .parseClaimsJws(token)
                 .getBody();
 
+
         return new JwtInfo(
                 (String) claims.get("role"),
                 claims.getSubject(),

@@ -3,6 +3,9 @@ package es.udc.tfg.app.model.user;
 import es.udc.tfg.app.model.genericDao.GenericDaoImpl;
 import es.udc.tfg.app.util.enums.UserRole;
 import es.udc.tfg.app.util.exceptions.InstanceNotFoundException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,16 +18,13 @@ import java.util.List;
 @Transactional
 public class UserDaoImpl extends GenericDaoImpl<User, Long> implements UserDao {
 
-    @Override
-    public List<User> findByFirstName(String firstName) {
-        return (List<User>) this.em.createQuery("SELECT u FROM User u WHERE u.firstName like :firstName")
-                .setParameter("firstName", "%" + firstName + "%").getResultList();
-    }
+    private String[] getTokens(String keywords) {
 
-    @Override
-    public List<User> findByLastName(String lastName) {
-        return (List<User>) this.em.createQuery("SELECT u FROM User u WHERE u.lastName like :lastName")
-                .setParameter("lastName", "%" + lastName + "%").getResultList();
+        if (keywords == null || keywords.length() == 0) {
+            return new String[0];
+        } else {
+            return keywords.split("\\s");
+        }
     }
 
     @Override
@@ -55,12 +55,52 @@ public class UserDaoImpl extends GenericDaoImpl<User, Long> implements UserDao {
     }
 
     @Override
-    public List<User> findByUserRole(UserRole role) {
-        return (List<User>) this.em.createQuery("SELECT u FROM User u WHERE u.role = :role")
-                .setParameter("role", role).getResultList();    }
+    public Slice<User> findByKeywords(String keywords, UserRole role, int page, int size) {
 
-    @Override
-    public List<User> findAll() {
-        return (List<User>) this.em.createQuery("SELECT u FROM User u ORDER BY u.id").getResultList();
+        String[] tokens = getTokens(keywords);
+        String queryString = "SELECT u FROM User u ";
+
+        if (tokens.length > 0 || role != null) {
+
+            queryString += "WHERE ";
+
+            if (role != null) {
+                System.out.println(role.toString());
+                queryString += "u.role = :role";
+            }
+
+            if (tokens.length > 0) {
+                for (int i = 0; i < tokens.length; i++) {
+                    if (role != null || i!= 0) {
+                        queryString += " AND ";
+                    }
+                    queryString += "(LOWER(u.firstName) LIKE :token" + i +
+                            " OR LOWER(u.lastName) LIKE :token" + i +
+                            " OR LOWER(u.dni) LIKE :token" + i +")";
+                }
+            }
+        }
+        Query query = this.em.createQuery(queryString)
+                .setFirstResult(page*size)
+                .setMaxResults(size+1);
+
+        if (role != null) {
+            query.setParameter("role", role);
+        }
+
+        if (tokens.length != 0) {
+            for (int i = 0; i<tokens.length; i++) {
+                query.setParameter("token" + i, '%' + tokens[i] + '%');
+            }
+        }
+
+        List<User> users = query.getResultList();
+        boolean hasNext = users.size() == (size+1);
+
+        if (hasNext) {
+            users.remove(users.size()-1);
+        }
+        return new SliceImpl<>(users, PageRequest.of(page, size), hasNext);
+
     }
 }
