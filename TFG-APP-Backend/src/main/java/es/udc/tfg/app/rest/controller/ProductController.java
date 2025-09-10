@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.io.IOException;
 import java.net.URI;
 
 @RestController
@@ -24,7 +25,7 @@ public class ProductController {
     ProductService productService;
 
     @PostMapping("/create")
-    public ResponseEntity<ProductDto> createProduct(@RequestBody ProductData productData, @RequestAttribute Long userId) throws InstanceNotFoundException, InputValidationException, InvalidProductStockException {
+    public ResponseEntity<ProductDto> createProduct(@RequestBody ProductData productData, @RequestAttribute Long userId) throws InstanceNotFoundException, InputValidationException, InvalidProductStockException, IOException {
 
         Product product = productService.createProduct(productData, userId);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/").build().toUri();
@@ -33,7 +34,7 @@ public class ProductController {
     }
 
     @PutMapping("/{id}/update")
-    public void updateProduct(@PathVariable Long id, @RequestBody ProductData productData) throws InstanceNotFoundException, InputValidationException {
+    public void updateProduct(@PathVariable Long id, @RequestBody ProductData productData) throws InstanceNotFoundException, InputValidationException, IOException {
 
         productService.updateProduct(id,productData);
     }

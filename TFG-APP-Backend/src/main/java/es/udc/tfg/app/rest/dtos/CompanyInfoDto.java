@@ -1,26 +1,21 @@
-package es.udc.tfg.app.model.CompanyInfo;
+package es.udc.tfg.app.rest.dtos;
 
-import jakarta.persistence.*;
+public class CompanyInfoDto {
 
-@Entity
-@Table(name = "company_info")
-public class CompanyInfo {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String name;
     private String address;
     private Long postCode;
     private String nif;
     private String email;
     private String web;
+    private String logo;
 
-    public CompanyInfo() {
+    public CompanyInfoDto() {
     }
 
-    public CompanyInfo(Long id, String name, String address, Long postCode, String nif, String email, String web) {
+    public CompanyInfoDto(Long id, String name, String address, Long postCode, String nif, String email, String web, String logo) {
         this.id = id;
         this.name = name;
         this.address = address;
@@ -28,6 +23,7 @@ public class CompanyInfo {
         this.nif = nif;
         this.email = email;
         this.web = web;
+        this.logo = logo;
     }
 
     public Long getId() {
@@ -84,5 +80,13 @@ public class CompanyInfo {
 
     public void setWeb(String web) {
         this.web = web;
+    }
+
+    public String getLogo() {
+        return logo;
+    }
+
+    public void setLogo(String logo) {
+        this.logo = logo;
     }
 }

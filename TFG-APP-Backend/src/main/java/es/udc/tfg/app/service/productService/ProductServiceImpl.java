@@ -9,14 +9,24 @@ import es.udc.tfg.app.model.ProductTaxes.ProductTaxesDao;
 import es.udc.tfg.app.model.user.User;
 import es.udc.tfg.app.model.user.UserDao;
 import es.udc.tfg.app.service.Block;
+import es.udc.tfg.app.util.conversors.DataConversor;
 import es.udc.tfg.app.util.exceptions.InputValidationException;
 import es.udc.tfg.app.util.exceptions.InstanceNotFoundException;
 import es.udc.tfg.app.util.exceptions.InvalidProductStockException;
 import es.udc.tfg.app.util.validator.ValidatorProperties;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.UUID;
+
+import static es.udc.tfg.app.util.conversors.DataConversor.saveBase64ToFile;
 
 @Service
 @Transactional
@@ -34,9 +44,15 @@ public class ProductServiceImpl implements ProductService{
     @Autowired
     private ProductTaxesDao productTaxesDao;
 
+    @Value("${app.product.path.final}")
+    private String productMediaPath;
+
+    @Value("${app.product.path.temp}")
+    private String productMediaTempPath;
+
 
     @Override
-    public Product createProduct(ProductData productData, Long creatorId) throws InstanceNotFoundException, InputValidationException, InvalidProductStockException {
+    public Product createProduct(ProductData productData, Long creatorId) throws InstanceNotFoundException, InputValidationException, InvalidProductStockException, IOException {
 
         User creator = userDao.find(creatorId);
         Category category = categoryDao.find(productData.getCategoryId());
@@ -52,13 +68,26 @@ public class ProductServiceImpl implements ProductService{
         if (stock < 0){
             throw new InvalidProductStockException();
         }
+        String unique = UUID.randomUUID().toString();
+
+        String imageBase64 = productData.getImage();
+        String imageTempPath = productMediaTempPath + unique + ".png";
+        if (imageBase64 != null && !imageBase64.isBlank()) {
+            saveBase64ToFile(imageBase64, imageTempPath);
+        }
+
+        String dataBase64 = productData.getData();
+        String dataTempPath = productMediaTempPath + unique + ".pdf";
+        if (dataBase64 != null && !dataBase64.isBlank()) {
+            saveBase64ToFile(dataBase64, dataTempPath);
+        }
 
         Product product = new Product(
                 reference,
                 name,
                 description,
-                productData.getImage(),
-                productData.getData(),
+                null,
+                null,
                 productData.getPrice(),
                 productData.getDiscount(),
                 productData.getStock(),
@@ -67,11 +96,27 @@ public class ProductServiceImpl implements ProductService{
                 creator);
 
         productDao.save(product);
+
+        Long productId = product.getId();
+
+        if (Files.exists(Path.of(imageTempPath))) {
+            String photoFileName = "product-" + productId + "-photo.png";
+            Path finalImagePath = Path.of(productMediaPath, photoFileName);
+            Files.move(Path.of(imageTempPath), finalImagePath, StandardCopyOption.REPLACE_EXISTING);
+            product.setImage(photoFileName);
+        }
+        if (Files.exists(Path.of(dataTempPath))) {
+            String dataFileName = "product-" + productId + "-data.pdf";
+            Path finalDataPath = Path.of(productMediaPath, dataFileName);
+            Files.move(Path.of(dataTempPath), finalDataPath, StandardCopyOption.REPLACE_EXISTING);
+            product.setData(dataFileName);
+        }
+
         return product;
     }
 
     @Override
-    public void updateProduct(Long productId, ProductData productData) throws InstanceNotFoundException, InputValidationException {
+    public void updateProduct(Long productId, ProductData productData) throws InstanceNotFoundException, InputValidationException, IOException {
         Product product = productDao.find(productId);
         String newReference = productData.getReference();
         ValidatorProperties.validateString(newReference);
@@ -92,12 +137,29 @@ public class ProductServiceImpl implements ProductService{
         product.setCategory(category);
         product.setTaxType(productTaxes);
 
-        if (productData.getImage() != null) {
-            product.setImage(productData.getImage());
-        }
+        String unique = UUID.randomUUID().toString();
 
-        if (productData.getData() != null) {
-            product.setData(productData.getData());
+        String imageBase64 = productData.getImage();
+        if (imageBase64 != null && !imageBase64.isBlank()) {
+            String imageTempPath = productMediaTempPath + unique + ".png";
+            saveBase64ToFile(imageBase64, imageTempPath);
+            String photoFileName = "product-" + productId + "-photo.png";
+            Path finalImagePath = Path.of(productMediaPath, photoFileName);
+            Files.move(Path.of(imageTempPath), finalImagePath, StandardCopyOption.REPLACE_EXISTING);
+            product.setImage(photoFileName);
+        }else {
+            product.setImage(null);
+        }
+        String dataBase64 = productData.getData();
+        if (dataBase64 != null && !dataBase64.isBlank()) {
+            String dataTempPath = productMediaTempPath + unique + ".pdf";
+            saveBase64ToFile(dataBase64, dataTempPath);
+            String dataFileName = "product-" + productId + "-data.pdf";
+            Path finalDataPath = Path.of(productMediaPath, dataFileName);
+            Files.move(Path.of(dataTempPath), finalDataPath, StandardCopyOption.REPLACE_EXISTING);
+            product.setData(dataFileName);
+        }else {
+            product.setData(null);
         }
     }
 

@@ -5,12 +5,13 @@ import es.udc.tfg.app.service.Block;
 import es.udc.tfg.app.util.exceptions.*;
 import jakarta.mail.MessagingException;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface UserService {
 
     public User registerUser(RegisterData registerData)
-            throws InputValidationException, DuplicateInstanceException, MessagingException;
+            throws InputValidationException, DuplicateInstanceException, MessagingException, IOException;
 
     public User loginUser(LoginData loginData) throws IncorrectLoginException, DisabledUserException;
 
@@ -22,7 +23,7 @@ public interface UserService {
     void resetUserPassword(Long id) throws InstanceNotFoundException, IllegalArgumentException, MessagingException;
 
     public void updateUser(Long userId, UserData userData, Long authenticatedUserId)
-            throws InstanceNotFoundException, InputValidationException, DuplicateInstanceException, PermissionException;
+            throws InstanceNotFoundException, InputValidationException, DuplicateInstanceException, PermissionException, IOException;
 
     public void changeUserState(Long userId) throws InstanceNotFoundException;
 

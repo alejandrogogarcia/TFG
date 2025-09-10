@@ -22,7 +22,7 @@ CREATE TABLE users (
                        create_date DATETIME DEFAULT CURRENT_TIMESTAMP,
                        language ENUM('ESP', 'GAL', 'ENG') NOT NULL,
                        role ENUM('EMPLOYEE', 'CLERK', 'ADMIN') NOT NULL,
-                       image LONGTEXT,
+                       image VARCHAR(255),
                        is_active BOOLEAN DEFAULT TRUE
 );
 
@@ -130,6 +130,5 @@ CREATE TABLE company_info (
                               post_code BIGINT,
                               nif VARCHAR(50),
                               email VARCHAR(255),
-                              web VARCHAR(255),
-                              logo LONGTEXT
+                              web VARCHAR(255)
 );

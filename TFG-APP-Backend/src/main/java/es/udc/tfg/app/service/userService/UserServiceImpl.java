@@ -13,6 +13,7 @@ import es.udc.tfg.app.util.enums.UserRole;
 import es.udc.tfg.app.util.exceptions.*;
 import es.udc.tfg.app.util.validator.ValidatorProperties;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Slice;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,9 +23,16 @@ import jakarta.mail.internet.MimeMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.List;
+import java.util.UUID;
+
+import static es.udc.tfg.app.util.conversors.DataConversor.saveBase64ToFile;
 
 @Service
 @Transactional
@@ -38,6 +46,12 @@ public class UserServiceImpl implements UserService{
 
     @Autowired
     private JavaMailSender mailSender;
+
+    @Value("${app.user.path.final}")
+    private String userMediaPath;
+
+    @Value("${app.user.path.temp}")
+    private String userMediaTempPath;
 
     public void sendPasswordResetEmail(String to, String token) throws MessagingException {
         String resetUrl = "http://localhost:3000/resetPass?token=" + token;
@@ -53,7 +67,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public User registerUser(RegisterData registerData) throws InputValidationException, DuplicateInstanceException, MessagingException {
+    public User registerUser(RegisterData registerData) throws InputValidationException, DuplicateInstanceException, MessagingException, IOException {
 
         ValidatorProperties.validateDni(registerData.getDni());
         ValidatorProperties.validateEmail(registerData.getEmail());
@@ -74,10 +88,28 @@ public class UserServiceImpl implements UserService{
             ValidatorProperties.validateCalendarPastDate(birthDate);
             Languages language = LanguageConversor.stringToLanguage(registerData.getLanguage());
             UserRole role = RoleConversor.stringToRole(registerData.getRole());
+
+            String unique = UUID.randomUUID().toString();
+
+            String imageBase64 = registerData.getImage();
+            String imageTempPath = userMediaTempPath + unique + ".png";
+            if (imageBase64 != null && !imageBase64.isBlank()) {
+                saveBase64ToFile(imageBase64, imageTempPath);
+            }
             User user = new User(firstName, lastName, registerData.getDni(), null,
-                    registerData.getEmail(), birthDate, language, role, registerData.getImage(), false);
+                    registerData.getEmail(), birthDate, language, role, null, false);
             sendPasswordResetEmail(user.getEmail(), user.getToken());
             userDao.save(user);
+
+            Long userId = user.getId();
+
+            if (Files.exists(Path.of(imageTempPath))) {
+                String photoFileName = "user-" + userId + "-photo.png";
+                Path finalImagePath = Path.of(userMediaPath, photoFileName);
+                Files.move(Path.of(imageTempPath), finalImagePath, StandardCopyOption.REPLACE_EXISTING);
+                user.setImage(photoFileName);
+            }
+
             return user;
         }
     }
@@ -137,7 +169,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public void updateUser(Long userId, UserData userData, Long authenticatedUserId) throws InstanceNotFoundException, InputValidationException, DuplicateInstanceException, PermissionException{
+    public void updateUser(Long userId, UserData userData, Long authenticatedUserId) throws InstanceNotFoundException, InputValidationException, DuplicateInstanceException, PermissionException, IOException {
         if (!userId.equals(authenticatedUserId) && !userDao.find(authenticatedUserId).getRole().equals(UserRole.ADMIN)) {
             throw new PermissionException();
         }
@@ -179,8 +211,20 @@ public class UserServiceImpl implements UserService{
         user.setLanguage(language);
         user.setRole(userRole);
         user.setActive(isActive);
-        if (userData.getImage()!= null){
-            user.setImage(userData.getImage());
+
+
+        String unique = UUID.randomUUID().toString();
+
+        String imageBase64 = userData.getImage();
+        if (imageBase64 != null && !imageBase64.isBlank()) {
+            String imageTempPath = userMediaTempPath + unique + ".png";
+            saveBase64ToFile(imageBase64, imageTempPath);
+            String photoFileName = "product-" + userId + "-photo.png";
+            Path finalImagePath = Path.of(userMediaPath, photoFileName);
+            Files.move(Path.of(imageTempPath), finalImagePath, StandardCopyOption.REPLACE_EXISTING);
+            user.setImage(photoFileName);
+        }else {
+            user.setImage(null);
         }
     }
 

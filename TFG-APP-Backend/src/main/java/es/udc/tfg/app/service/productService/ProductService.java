@@ -6,11 +6,13 @@ import es.udc.tfg.app.util.exceptions.InputValidationException;
 import es.udc.tfg.app.util.exceptions.InstanceNotFoundException;
 import es.udc.tfg.app.util.exceptions.InvalidProductStockException;
 
+import java.io.IOException;
+
 public interface ProductService {
 
-    public Product createProduct(ProductData productData, Long creatorId) throws InstanceNotFoundException, InputValidationException, InvalidProductStockException;
+    public Product createProduct(ProductData productData, Long creatorId) throws InstanceNotFoundException, InputValidationException, InvalidProductStockException, IOException;
 
-    public void updateProduct(Long productId, ProductData productData) throws InstanceNotFoundException, InputValidationException;
+    public void updateProduct(Long productId, ProductData productData) throws InstanceNotFoundException, InputValidationException, IOException;
 
     public void modifyProductStock(Long productId, int stock) throws InstanceNotFoundException, InvalidProductStockException;
 

@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 import java.util.Locale;
@@ -62,7 +63,7 @@ public class UserController {
 
 
     @PostMapping("/users/create")
-    public ResponseEntity<UserDto> createUser(@RequestBody RegisterData registerData) throws InputValidationException, DuplicateInstanceException, MessagingException {
+    public ResponseEntity<UserDto> createUser(@RequestBody RegisterData registerData) throws InputValidationException, DuplicateInstanceException, MessagingException, IOException {
 
         User user = userService.registerUser(registerData);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/").build().toUri();
@@ -110,7 +111,7 @@ public class UserController {
 
     @PutMapping("/users/{id}/update")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateUser(@PathVariable Long id, @RequestBody UserData userData, @RequestAttribute Long userId) throws InputValidationException, DuplicateInstanceException, InstanceNotFoundException, PermissionException {
+    public void updateUser(@PathVariable Long id, @RequestBody UserData userData, @RequestAttribute Long userId) throws InputValidationException, DuplicateInstanceException, InstanceNotFoundException, PermissionException, IOException {
 
         userService.updateUser(id,userData,userId);
 
