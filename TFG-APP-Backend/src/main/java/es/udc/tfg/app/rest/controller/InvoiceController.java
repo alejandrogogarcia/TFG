@@ -6,6 +6,7 @@ import es.udc.tfg.app.service.Block;
 import es.udc.tfg.app.service.InvoiceService.InvoiceService;
 import es.udc.tfg.app.util.conversors.CalendarConversor;
 import es.udc.tfg.app.util.conversors.InvoiceConversor;
+import es.udc.tfg.app.util.exceptions.CreateInvoiceException;
 import es.udc.tfg.app.util.exceptions.InputValidationException;
 import es.udc.tfg.app.util.exceptions.InstanceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,7 @@ public class InvoiceController {
     private InvoiceService invoiceService;
 
     @PostMapping("/create")
-    public ResponseEntity<InvoiceDto> createInvoice(@RequestBody List<Long> notes, @RequestAttribute Long userId) throws InstanceNotFoundException {
+    public ResponseEntity<InvoiceDto> createInvoice(@RequestBody List<Long> notes, @RequestAttribute Long userId) throws InstanceNotFoundException, CreateInvoiceException {
         Invoice invoice = invoiceService.createInvoice(notes, userId);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(invoice.getId()).toUri();
         return ResponseEntity.created(location).body(InvoiceConversor.toInvoiceDto(invoice));

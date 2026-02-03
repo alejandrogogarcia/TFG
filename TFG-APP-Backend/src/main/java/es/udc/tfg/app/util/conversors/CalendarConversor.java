@@ -35,4 +35,30 @@ public class CalendarConversor {
 
 	}
 
+	public static String calendarWithTimeToString(Calendar calendar) {
+
+		SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+		dateFormat.setCalendar(calendar);
+
+		return dateFormat.format(calendar.getTime());
+	}
+
+	public static Calendar stringToCalendarWithTime(String stringDate) throws InputValidationException {
+
+		SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+		Calendar calendar;
+
+		try {
+			Date date = dateFormat.parse(stringDate);
+			calendar = Calendar.getInstance();
+			calendar.setTime(date);
+		} catch (Exception e) {
+			throw new InputValidationException("stringDate", "Error parsing 'stringDate' = [" + stringDate + "] "
+					+ "to 'Calendar'. Error Message: " + e.getMessage());
+		}
+
+		return calendar;
+
+	}
+
 }

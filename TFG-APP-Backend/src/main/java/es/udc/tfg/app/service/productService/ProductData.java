@@ -1,8 +1,5 @@
 package es.udc.tfg.app.service.productService;
 
-
-import java.util.Calendar;
-
 public class ProductData {
 
     private String reference;

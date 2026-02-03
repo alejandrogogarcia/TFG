@@ -17,7 +17,7 @@ public class NoteConversor {
                 note.getTaxes(),
                 note.getTotal(),
                 note.getComment(),
-                CalendarConversor.calendarToString(note.getCreateDate()),
+                CalendarConversor.calendarWithTimeToString(note.getCreateDate()),
                 note.getClient().getId(),
                 note.getCreator().getId(),
                 note.getInvoice() != null ? note.getInvoice().getId() : null,

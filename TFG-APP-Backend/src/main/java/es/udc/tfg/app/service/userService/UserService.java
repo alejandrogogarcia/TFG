@@ -25,15 +25,7 @@ public interface UserService {
     public void updateUser(Long userId, UserData userData, Long authenticatedUserId)
             throws InstanceNotFoundException, InputValidationException, DuplicateInstanceException, PermissionException, IOException;
 
-    public void changeUserState(Long userId) throws InstanceNotFoundException;
-
-    public void updateUserRole(Long userId, String role) throws InstanceNotFoundException, InputValidationException;
-
     public User findUserById(Long userId) throws InstanceNotFoundException;
-
-    public User findUserByEmail(String email) throws InstanceNotFoundException, InputValidationException;
-
-    public User findUserByDni(String dni) throws InstanceNotFoundException, InputValidationException;
 
     public Block<User> findUsersByKeywords(String keywords, String role, int page, int size) throws InputValidationException;
 

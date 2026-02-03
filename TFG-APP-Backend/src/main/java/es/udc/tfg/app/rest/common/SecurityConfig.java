@@ -1,6 +1,7 @@
 package es.udc.tfg.app.rest.common;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -25,13 +26,16 @@ public class SecurityConfig {
     @Autowired
     private JwtGenerator jwtGenerator;
 
+    @Autowired
+    private MessageSource messageSource;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http.cors(Customizer.withDefaults())
                 .csrf((csrf) -> csrf.disable())
                 .sessionManagement((sessionManagement) -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(new JwtFilter(jwtGenerator), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtFilter(jwtGenerator, messageSource), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests((authorize) -> authorize
                         // Users
                         .requestMatchers(HttpMethod.POST, "/login").permitAll()
@@ -41,10 +45,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/users/find").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/users/{id}").authenticated()
                         .requestMatchers(HttpMethod.POST, "/loginFromServiceToken").authenticated()
-                        .requestMatchers(HttpMethod.PUT, "/users/{id}/changePass").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/users/changePass").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/users/{id}/update").authenticated()
-
-
 
                         // Categories
                         .requestMatchers(HttpMethod.POST, "/category/create").hasRole("ADMIN")

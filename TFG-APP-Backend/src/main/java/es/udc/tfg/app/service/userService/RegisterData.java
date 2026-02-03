@@ -10,8 +10,6 @@ public class RegisterData {
 
     private String email;
 
-    //private String password;
-
     private String birthDate;
 
     private String language;

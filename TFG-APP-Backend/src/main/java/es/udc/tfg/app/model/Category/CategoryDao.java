@@ -9,7 +9,7 @@ public interface CategoryDao extends GenericDao<Category, Long> {
 
     public Slice<Category> findByName(String name, int page, int size);
 
-    public List<Category> findByCreatorId(Long creatorId);
+    public Slice<Category> findByCreatorId(Long creatorId, int page, int size);
 
-    public List<Category> findAll();
+    public Slice<Category> findAll(int page, int size);
 }

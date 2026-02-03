@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Calendar;
-import java.util.Objects;
 
 @Service
 @Transactional
@@ -66,7 +65,6 @@ public class NoteServiceImpl implements NoteService {
                 note.setClient(client);
             }
         }
-
         note.setComment(noteData.getComment());
     }
 
@@ -114,42 +112,33 @@ public class NoteServiceImpl implements NoteService {
 
     @Override
     public void modifyNoteline(Long notelineId, NotelineData notelineData) throws InstanceNotFoundException, InvoiceAttachedException, InvalidProductStockException {
+
         Noteline noteline = notelineDao.find(notelineId);
         Note note = noteline.getNote();
         if (note.getInvoice() != null) {
             throw new InvoiceAttachedException();
         }
-        float oldTotalPrice = noteline.getPrice() * noteline.getAmount()* (1 - noteline.getDiscount() / 100.0f);
-        float oldTaxValue = noteline.getTaxes();
+        float oldLineTotal = noteline.getPrice() * noteline.getAmount() * (1 - noteline.getDiscount() / 100.0f);
+        float oldLineTaxValue = noteline.getTaxes();
         Product oldProduct = noteline.getProduct();
-        Long newProductId = notelineData.getProductId();
-        float productPrice = oldProduct.getFinalPrice();
-
-        if (!oldProduct.getId().equals(newProductId)) {
-            oldProduct.setStock(oldProduct.getStock() + noteline.getAmount());
-            Product newProduct = productDao.find(newProductId);
-            productPrice = newProduct.getFinalPrice();
-
-            if (newProduct.getStock() < notelineData.getAmount()) {
-                throw new InvalidProductStockException();
-            }
-            newProduct.setStock(newProduct.getStock() - notelineData.getAmount());
-            noteline.setProduct(newProduct);
+        oldProduct.setStock(oldProduct.getStock() + noteline.getAmount());
+        Product newProduct = productDao.find(notelineData.getProductId());
+        if (newProduct.getStock() < notelineData.getAmount()) {
+            oldProduct.setStock(oldProduct.getStock() - noteline.getAmount());
+            throw new InvalidProductStockException();
         }
-
+        newProduct.setStock(newProduct.getStock() - notelineData.getAmount());
+        noteline.setProduct(newProduct);
+        float productPrice = newProduct.getFinalPrice();
         noteline.setAmount(notelineData.getAmount());
         noteline.setDiscount(notelineData.getDiscount());
         noteline.setComment(notelineData.getComment());
-
-        float notelineTotalPrice = productPrice * notelineData.getAmount()* (1 - notelineData.getDiscount() / 100.0f);
-        float notelineTaxValue = notelineTotalPrice * (noteline.getProduct().getTaxType().getValue() / 100.0f);
-
-
         noteline.setPrice(productPrice);
-        noteline.setTaxes(notelineTaxValue);
-
-        note.setSubtotal(note.getSubtotal() - oldTotalPrice + notelineTotalPrice);
-        note.setTaxes(note.getTaxes() - oldTaxValue + notelineTaxValue);
+        float newLineTotal = productPrice * notelineData.getAmount() * (1 - notelineData.getDiscount() / 100.0f);
+        float newLineTaxValue = newLineTotal * (newProduct.getTaxType().getValue() / 100.0f);
+        noteline.setTaxes(newLineTaxValue);
+        note.setSubtotal(note.getSubtotal() - oldLineTotal + newLineTotal);
+        note.setTaxes(note.getTaxes() - oldLineTaxValue + newLineTaxValue);
         note.setTotal(note.getSubtotal() + note.getTaxes());
     }
 
@@ -166,10 +155,9 @@ public class NoteServiceImpl implements NoteService {
         note.setTaxes(note.getTaxes() - taxValue);
         note.setTotal(note.getSubtotal() + note.getTaxes());
         note.setTotal(note.getSubtotal() + note.getTaxes());
-
+        note.getNotelines().remove(noteline);
         notelineDao.remove(noteline.getId());
     }
-
 
     @Override
     public Note findNoteById(Long noteId) throws InstanceNotFoundException {
@@ -187,4 +175,3 @@ public class NoteServiceImpl implements NoteService {
         return new Block<>(notesSlice.getContent(), notesSlice.hasNext());
     }
 }
-

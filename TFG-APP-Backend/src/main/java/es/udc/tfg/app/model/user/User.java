@@ -45,8 +45,6 @@ public class User {
 
     private boolean isActive;
 
-    // ....... Constructores ......./
-
     public User() {
     }
 
@@ -65,8 +63,6 @@ public class User {
         this.image = image;
         this.isActive = isActive;
     }
-
-    // ....... Getters & Setters ......./
 
     public Long getId() {
         return id;

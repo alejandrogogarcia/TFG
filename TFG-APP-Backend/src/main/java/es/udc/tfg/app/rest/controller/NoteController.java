@@ -85,7 +85,7 @@ public class NoteController {
         if (startDate != null) {
             startDateCalendar = CalendarConversor.stringToCalendar(startDate);
         }
-        if (startDate != null) {
+        if (endDate != null) {
             endDateCalendar = CalendarConversor.stringToCalendar(endDate);
         }
 

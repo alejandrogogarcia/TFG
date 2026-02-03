@@ -16,6 +16,6 @@ public interface CategoryService {
 
     public Block<Category> findCategoryByName(String name, int page, int size);
 
-    public List<Category> findAllCategories();
+    public Block<Category> findAllCategories(int page, int size);
 
 }

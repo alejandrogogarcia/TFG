@@ -4,6 +4,7 @@ import es.udc.tfg.app.model.user.TokenGenerator;
 import es.udc.tfg.app.model.user.User;
 import es.udc.tfg.app.model.user.UserDao;
 import es.udc.tfg.app.service.Block;
+import es.udc.tfg.app.service.emailService.EmailService;
 import es.udc.tfg.app.util.conversors.BooleanConversor;
 import es.udc.tfg.app.util.conversors.CalendarConversor;
 import es.udc.tfg.app.util.conversors.LanguageConversor;
@@ -19,9 +20,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -29,7 +27,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.Calendar;
-import java.util.List;
 import java.util.UUID;
 
 import static es.udc.tfg.app.util.conversors.DataConversor.saveBase64ToFile;
@@ -45,26 +42,13 @@ public class UserServiceImpl implements UserService{
     private BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
-    private JavaMailSender mailSender;
+    private EmailService emailService;
 
     @Value("${app.user.path.final}")
     private String userMediaPath;
 
     @Value("${app.user.path.temp}")
     private String userMediaTempPath;
-
-    public void sendPasswordResetEmail(String to, String token) throws MessagingException {
-        String resetUrl = "http://localhost:3000/resetPass?token=" + token;
-
-        MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, true);
-        helper.setTo(to);
-        helper.setSubject("Establece tu contraseña");
-        helper.setText("<p>Haz clic en el siguiente enlace para establecer tu contraseña:</p>"
-                + "<a href='" + resetUrl + "'>Restablecer contraseña</a>", true);
-
-        mailSender.send(message);
-    }
 
     @Override
     public User registerUser(RegisterData registerData) throws InputValidationException, DuplicateInstanceException, MessagingException, IOException {
@@ -98,7 +82,7 @@ public class UserServiceImpl implements UserService{
             }
             User user = new User(firstName, lastName, registerData.getDni(), null,
                     registerData.getEmail(), birthDate, language, role, null, false);
-            sendPasswordResetEmail(user.getEmail(), user.getToken());
+            emailService.sendPasswordResetEmail(user);
             userDao.save(user);
 
             Long userId = user.getId();
@@ -109,7 +93,6 @@ public class UserServiceImpl implements UserService{
                 Files.move(Path.of(imageTempPath), finalImagePath, StandardCopyOption.REPLACE_EXISTING);
                 user.setImage(photoFileName);
             }
-
             return user;
         }
     }
@@ -147,9 +130,8 @@ public class UserServiceImpl implements UserService{
     public void setUserPassword(String dni, String token, String password) throws InstanceNotFoundException, IllegalArgumentException  {
 
         User user = userDao.findByDni(dni);
-        System.out.println(token);
         if (user.getToken() == null || !token.equals(user.getToken()) || user.getExpiryDate() == null || user.getExpiryDate().isBefore(LocalDateTime.now())) {
-            throw new IllegalArgumentException("Token inválido o ha expirado");
+            throw new IllegalArgumentException("Invalid or expired token");
         }
         user.setActive(true);
         user.setEncryptedPassword(passwordEncoder.encode(password));
@@ -162,7 +144,7 @@ public class UserServiceImpl implements UserService{
 
         User user = userDao.find(id);
         String token =  TokenGenerator.generateToken();
-        sendPasswordResetEmail(user.getEmail(), token);
+        emailService.sendPasswordResetEmail(user);
         user.setActive(false);
         user.setToken(token);
         user.setExpiryDate(LocalDateTime.now().plusDays(3));
@@ -184,7 +166,6 @@ public class UserServiceImpl implements UserService{
             } catch (InstanceNotFoundException e) {
             }
         }
-
         ValidatorProperties.validateEmail(userData.getEmail());
 
         if (!user.getEmail().toLowerCase().equals(userData.getEmail().toLowerCase())) {
@@ -194,32 +175,29 @@ public class UserServiceImpl implements UserService{
             } catch (InstanceNotFoundException e) {
             }
         }
-
         ValidatorProperties.validateString(userData.getFirstName());
         ValidatorProperties.validateString(userData.getLastName());
         Calendar birthDate = CalendarConversor.stringToCalendar(userData.getBirthDate());
         ValidatorProperties.validateCalendarPastDate(birthDate);
         Languages language = LanguageConversor.stringToLanguage(userData.getLanguage());
-        UserRole userRole = RoleConversor.stringToRole(userData.getRole());
-        boolean isActive = BooleanConversor.stringToBoolean(userData.getIsActive());
-
+        if (!userId.equals(authenticatedUserId)){
+            UserRole userRole = RoleConversor.stringToRole(userData.getRole());
+            boolean isActive = BooleanConversor.stringToBoolean(userData.getIsActive());
+            user.setRole(userRole);
+            user.setActive(isActive);
+        }
         user.setDni(userData.getDni());
         user.setEmail(userData.getEmail());
         user.setFirstName(userData.getFirstName());
         user.setLastName(userData.getLastName());
         user.setBirthDate(birthDate);
         user.setLanguage(language);
-        user.setRole(userRole);
-        user.setActive(isActive);
-
-
         String unique = UUID.randomUUID().toString();
-
         String imageBase64 = userData.getImage();
         if (imageBase64 != null && !imageBase64.isBlank()) {
             String imageTempPath = userMediaTempPath + unique + ".png";
             saveBase64ToFile(imageBase64, imageTempPath);
-            String photoFileName = "product-" + userId + "-photo.png";
+            String photoFileName = "user-" + userId + "-photo.png";
             Path finalImagePath = Path.of(userMediaPath, photoFileName);
             Files.move(Path.of(imageTempPath), finalImagePath, StandardCopyOption.REPLACE_EXISTING);
             user.setImage(photoFileName);
@@ -229,42 +207,8 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public void changeUserState(Long userId) throws InstanceNotFoundException {
-        User user = userDao.find(userId);
-        user.setActive(!user.isActive());
-    }
-
-    @Override
-    public void updateUserRole(Long userId, String role) throws InstanceNotFoundException, InputValidationException {
-        User user = userDao.find(userId);
-        UserRole enumRole = null;
-
-        try {
-            enumRole = UserRole.valueOf(role);
-        }catch (IllegalArgumentException e){
-            throw new InputValidationException(role, "Role should be UserRole type");
-        }
-
-        if (enumRole != user.getRole()){
-            user.setRole(enumRole);
-        }
-    }
-
-    @Override
     public User findUserById(Long userId) throws InstanceNotFoundException {
         return userDao.find(userId);
-    }
-
-    @Override
-    public User findUserByEmail(String email) throws InstanceNotFoundException, InputValidationException {
-        ValidatorProperties.validateEmail(email);
-        return userDao.findByEmail(email); }
-
-    @Override
-    public User findUserByDni(String dni) throws InstanceNotFoundException, InputValidationException {
-
-        ValidatorProperties.validateDni(dni);
-        return userDao.findByDni(dni);
     }
 
     @Override
@@ -279,8 +223,6 @@ public class UserServiceImpl implements UserService{
             }
         }
         Slice<User> slice = userDao.findByKeywords(keywords, roleEnum, page, size);
-
         return new Block<>(slice.getContent(), slice.hasNext());
     }
-
 }

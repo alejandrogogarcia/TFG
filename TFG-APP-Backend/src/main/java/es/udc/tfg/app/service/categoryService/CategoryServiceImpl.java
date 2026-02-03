@@ -55,7 +55,9 @@ public class CategoryServiceImpl implements CategoryService{
     }
 
     @Override
-    public List<Category> findAllCategories() {
-        return categoryDao.findAll();
+    public Block<Category> findAllCategories(int page, int size) {
+        Slice<Category> slice = categoryDao.findAll(page, size);
+
+        return new Block<>(slice.getContent(), slice.hasNext());
     }
 }

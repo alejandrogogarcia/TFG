@@ -5,6 +5,9 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -17,14 +20,14 @@ import java.util.Set;
 
 public class JwtFilter extends HttpFilter {
 
-    private JwtGenerator jwtGenerator;
+    private final JwtGenerator jwtGenerator;
+    private final MessageSource messageSource;
 
-    public JwtFilter(JwtGenerator jwtGenerator) {
+    public JwtFilter(JwtGenerator jwtGenerator, MessageSource messageSource) {
 
         this.jwtGenerator = jwtGenerator;
-
+        this.messageSource = messageSource;
     }
-
 
     @Override
     protected void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -41,7 +44,14 @@ public class JwtFilter extends HttpFilter {
             configureSecurityContext(jwtInfo.getDni(), jwtInfo.getRole());
         } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("{\"globalError\":\"Token inválido o expirado.\"}");
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            String errorMessage = messageSource.getMessage(
+                    "project.auth.error.invalidToken",
+                    null,
+                    LocaleContextHolder.getLocale()
+            );
+            response.getWriter().write("{\"globalError\":\"" + errorMessage + "\"}");
             return;
         }
         filterChain.doFilter(request, response);
@@ -50,10 +60,7 @@ public class JwtFilter extends HttpFilter {
     private void configureSecurityContext(String dni, String role) {
 
         Set<GrantedAuthority> authorities = new HashSet<>();
-        System.out.println("Rol asignado al usuario en SecurityContext: ROLE_" + role);
-
         authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
-
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(dni, null, authorities));
 

@@ -16,8 +16,6 @@ public class CategoryDaoImpl extends GenericDaoImpl<Category, Long> implements C
 
     @Override
     public Slice<Category> findByName(String name, int page, int size) {
-//        return (List<Category>) this.em.createQuery("SELECT c FROM Category c WHERE c.name like :name")
-//                .setParameter("name", "%" +name + "%").getResultList();
         String queryString = "SELECT c FROM Category c";
 
         if (name != null && !name.isBlank()) {
@@ -36,7 +34,7 @@ public class CategoryDaoImpl extends GenericDaoImpl<Category, Long> implements C
         boolean hasNext = categories.size() > size;
 
         if (hasNext) {
-            categories.remove(categories.size() - 1); // Eliminamos el extra usado para saber si hay más
+            categories.remove(categories.size() - 1);
         }
 
         return new SliceImpl<>(categories, PageRequest.of(page, size), hasNext);
@@ -44,15 +42,40 @@ public class CategoryDaoImpl extends GenericDaoImpl<Category, Long> implements C
     }
 
     @Override
-    public List<Category> findByCreatorId(Long creatorId) {
-        return (List<Category>) this.em.createQuery("SELECT c FROM Category c WHERE c.creator.id like :creatorId")
-                .setParameter("creatorId", creatorId).getResultList();
+    public Slice<Category> findByCreatorId(Long creatorId, int page, int size) {
+        String queryString = "SELECT c FROM Category c WHERE c.creator.id = :creatorId";
 
+        Query query = this.em.createQuery(queryString)
+                .setParameter("creatorId", creatorId)
+                .setFirstResult(page * size)
+                .setMaxResults(size + 1);
+
+        List<Category> categories = query.getResultList();
+        boolean hasNext = categories.size() > size;
+
+        if (hasNext) {
+            categories.remove(categories.size() - 1);
+        }
+
+        return new SliceImpl<>(categories, PageRequest.of(page, size), hasNext);
     }
 
+
     @Override
-    public List<Category> findAll() {
-        return (List<Category>) this.em.createQuery("SELECT c FROM Category c ORDER BY c.id")
-                .getResultList();
+    public Slice<Category> findAll(int page, int size) {
+        String queryString = "SELECT c FROM Category c ORDER BY c.id";
+
+        Query query = this.em.createQuery(queryString)
+                .setFirstResult(page * size)
+                .setMaxResults(size + 1);
+
+        List<Category> categories = query.getResultList();
+        boolean hasNext = categories.size() > size;
+
+        if (hasNext) {
+            categories.remove(categories.size() - 1);
+        }
+
+        return new SliceImpl<>(categories, PageRequest.of(page, size), hasNext);
     }
 }
